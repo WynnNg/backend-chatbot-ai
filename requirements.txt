@@ -2,7 +2,6 @@ python-dotenv
 flask
 flask_sqlalchemy
 flask_login
-collections
 spacy
 nltk
 chromadb
