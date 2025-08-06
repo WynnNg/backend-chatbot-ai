@@ -19,8 +19,12 @@ from rag.core import RAGChatBot
 
 # Load environment variables from .env file
 load_dotenv()
+
 # Access the key
 OPEN_AI_KEY = os.getenv('OPEN_AI_KEY')
+CHROMADB_API_KEY = os.getenv('CHROMADB_API_KEY')
+chromadb_db_name = os.getenv('CHROMADB_DB_NAME')
+chromadb_tenant = os.getenv('CHROMADB_TENANT')
 
 app = Flask(__name__)
 CORS(app)
@@ -37,14 +41,21 @@ with app.app_context():
 
 client_openai = OpenAI(api_key=OPEN_AI_KEY)
 
-# Đường dẫn tới thư mục chroma database
-db_name = "chromaDatabase"
+# Đường dẫn tới thư mục local chroma database
+# db_name = "chromaDatabase"
 # Kiểm tra và tạo thư mục nếu chưa tồn tại
-if not os.path.exists(f"./{db_name}"):
-    os.makedirs(f"./{db_name}")
+# if not os.path.exists(f"./{db_name}"):
+    # os.makedirs(f"./{db_name}")
 # Khởi tạo client với đường dẫn
-client_chroma = chromadb.PersistentClient(path=f"./{db_name}")
-collection = client_chroma.get_or_create_collection(name=db_name, metadata={"hnsw:space": "cosine"})
+# client_chroma = chromadb.PersistentClient(path=f"./{db_name}")
+
+client_chroma = chromadb.CloudClient(
+  api_key=CHROMADB_API_KEY,
+  tenant=chromadb_tenant,
+  database=chromadb_db_name
+)
+
+collection = client_chroma.get_or_create_collection(name=chromadb_db_name, metadata={"hnsw:space": "cosine"})
 
 # Initialize RAGChatBot with OpenAI client and ChromaDB collection
 rag_chatbot = RAGChatBot(client_openai, collection)
@@ -63,7 +74,6 @@ def load_user(id):
 def chat():
     try:
         data = request.get_json()
-        print(data)
         if not data or 'query' not in data:
             return jsonify({"error": "No query provided"}), 400
 
