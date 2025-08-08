@@ -12,7 +12,7 @@ from sqlalchemy import desc
 import chromadb
 from db import db
 
-from models import User, QA, Prompt
+from models import User, QA
 from embeddings import ChromaDB
 
 from rag.core import RAGChatBot
