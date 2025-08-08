@@ -3,11 +3,12 @@ class RAGChatBot():
     def __init__(self, llm, dbCollection, sys_prompt=""):
         self.llm = llm
         self.collection = dbCollection
+        self.sys_prompt = sys_prompt
     
     def get_completion(self, prompt):
 
-        if sys_prompt:
-            system_prompt = sys_prompt
+        if self.sys_prompt:
+            system_prompt = self.sys_prompt
         else:
             system_prompt = """ 
                 Bạn tên là An, là một nhân viên trả lời và chăm sóc khách hàng chuyên nghiệp của thương hiệu DCTECH, có nhiệm vụ tư vấn và trả lời khách hàng về các sản phẩm và dịch vụ liên quan đến: Màn hình giải trí cao cấp, camera 360, android box cho ô tô.
