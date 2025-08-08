@@ -65,11 +65,7 @@ class RAGChatBot():
             formatted_result = f"""<SEARCH RESULT>
             <DOCUMENT>{result}</DOCUMENT>
             <METADATA>
-            <TITLE>{metadata['title']}</TITLE>
-            <QUESTION>{metadata['question']}</QUESTION>
-            <ANSWER>{metadata['answer']}</ANSWER>
-            <CHUNK_IDX>{metadata['id']}</CHUNK_IDX>
-            <TOPIC>{metadata['topic']}</TOPIC>
+            {metadata}
             </METADATA>
             </SEARCH RESULT>"""
             result_str += formatted_result
