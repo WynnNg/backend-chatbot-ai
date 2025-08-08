@@ -12,7 +12,7 @@ from sqlalchemy import desc
 import chromadb
 from db import db
 
-from models import User, QA
+from models import User, QA, Prompt
 from embeddings import ChromaDB
 
 from rag.core import RAGChatBot
@@ -89,6 +89,95 @@ def chat():
 
     except ValueError as e:
         return jsonify({"error": f"Invalid JSON: {str(e)}"}), 400    
+
+#Route for add documents to vector database
+@app.route('/api/product/learn', methods=['POST'])
+def add_product_to_db():
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "No data provided"}), 400
+        
+        if data["promotion"]:
+            metadata = {
+                "id": data["id"],
+                "name": data["name"] if data["name"] else "",
+                "price": data["price"] if data["price"] else "",
+                "promotion": data["promotion"] if data["promotion"] else "",
+                "topic": f"Thông tin sản phẩm {data["name"]}"
+            }
+        else:
+            metadata = {
+                "id": data["id"],
+                "name": data["name"] if data["name"] else "",
+                "price": data["price"] if data["price"] else "",
+                "topic": f"Thông tin sản phẩm {data["name"]}"
+            }
+
+        documents = data["info"]
+
+        chromadb.add_documents(
+            documents=documents,
+            metadatas=metadata
+        )
+
+        return jsonify({"metadata": metadata, "status": "success"}), 200
+
+    except Exception as e:
+        return jsonify({"error": f"Server error: {str(e)}"}), 500
+
+@app.route('/api/document/learn', methods=['POST'])
+def add_document_to_db():
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "No data provided"}), 400
+        
+        metadata = {
+            "id": data["id"],
+            "title": data["title"] if data["title"] else "",
+            "topic": data["topic"] if data["topic"] else "",
+            "type": data["type"] if data["type"] else "",
+        }
+
+        documents = data["content"]
+
+        chromadb.add_documents(
+            documents=documents,
+            metadatas=metadata
+        )
+
+        return jsonify({"metadata": metadata, "status": "success"}), 200
+    except Exception as e:
+        return jsonify({"error": f"Server error: {str(e)}"}), 500
+
+@app.route('/api/question/learn', methods=['POST'])
+def add_question_to_db():
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "No data provided"}), 400
+        
+        metadata = {
+            "id": data["id"],
+            "question": data["question"],
+            "answer": data["answer"],
+            "intent": data["intent"],
+            "topic": data["topic"],
+            "type": data["type"],
+        }
+
+        documents = f"Câu hỏi: {data['question']}. Câu trả lời: {data["answer"]}. {data["topic"]}. {data["intent"]}"
+
+        chromadb.add_documents(
+            documents=documents,
+            metadatas=metadata
+        )
+
+        return jsonify({"metadata": metadata, "status": "success"}), 200
+
+    except Exception as e:
+        return jsonify({"error": f"Server error: {str(e)}"}), 500
 
 #Route for question and answer management
 @app.route('/api/qa')
