@@ -12,7 +12,7 @@ from sqlalchemy import desc
 import chromadb
 from db import db
 
-from models import User, QA
+from models import User, QA, Prompt
 from embeddings import ChromaDB
 
 from rag.core import RAGChatBot
@@ -38,6 +38,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False #to supress warning
 db.init_app(app) #database instance
 with app.app_context():
     db.create_all()  # Create database tables
+    
 
 client_openai = OpenAI(api_key=OPEN_AI_KEY)
 
@@ -58,6 +59,7 @@ client_chroma = chromadb.CloudClient(
 collection = client_chroma.get_or_create_collection(name=chromadb_db_name, metadata={"hnsw:space": "cosine"})
 
 # Initialize RAGChatBot with OpenAI client and ChromaDB collection
+
 rag_chatbot = RAGChatBot(client_openai, collection)
 chromadb = ChromaDB(client_chroma, collection)
 
@@ -79,8 +81,9 @@ def chat():
 
         query = data['query']
         chat_history = data.get('chat_history', '')
+        system_prompt = Prompt.query.filter(Prompt.prompt_id == 1).first()
 
-        rag_completion = rag_chatbot.perform_cqr_rag(query, chat_history, n_results=2)
+        rag_completion = rag_chatbot.perform_cqr_rag(query, chat_history, system_prompt, n_results=2)
         
         if not rag_completion:
             return jsonify({"error": "No results found"}), 404
@@ -175,6 +178,39 @@ def add_question_to_db():
         )
 
         return jsonify({"metadata": metadata, "status": "success"}), 200
+
+    except Exception as e:
+        return jsonify({"error": f"Server error: {str(e)}"}), 500
+
+@app.route('/api/system-prompt', methods=['POST'])
+def add_system_prompt():
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "No data provided"}), 400
+
+        print("check data", data)
+        prompt = Prompt.query.filter(Prompt.prompt_id == 1).first()
+        print("check prompt", prompt)
+
+        if prompt:
+            prompt.prompt = data["prompt"]
+        else:
+            prompt = Prompt(prompt_id = 1, prompt=data["prompt"])
+
+        db.session.add(prompt)
+
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+
+        response = {
+            "prompt_id": prompt.prompt_id,
+            "prompt": prompt.prompt
+        }
+
+        return jsonify({"data": response, "status": "success"}), 200
 
     except Exception as e:
         return jsonify({"error": f"Server error: {str(e)}"}), 500

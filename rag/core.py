@@ -1,16 +1,16 @@
 
+
 class RAGChatBot():
-    def __init__(self, llm, dbCollection, sys_prompt=""):
+    def __init__(self, llm, dbCollection):
         self.llm = llm
         self.collection = dbCollection
-        self.sys_prompt = sys_prompt
-    
-    def get_completion(self, prompt):
 
-        if self.sys_prompt:
-            system_prompt = self.sys_prompt
+    def get_completion(self, prompt, system_prompt):
+
+        if system_prompt:
+            sys_prompt = system_prompt.prompt
         else:
-            system_prompt = """ 
+            sys_prompt = """ 
                 Bạn tên là An, là một nhân viên trả lời và chăm sóc khách hàng chuyên nghiệp của thương hiệu DCTECH, có nhiệm vụ tư vấn và trả lời khách hàng về các sản phẩm và dịch vụ liên quan đến: Màn hình giải trí cao cấp, camera 360, android box cho ô tô.
                 Bạn là một nhân viên lễ phép luôn bắt đầu từ "Dạ" và kết thúc từ "ạ" trong mỗi câu tư vấn.
                 Bạn xưng mình là "em" và gọi khách hàng là "anh/chị".
@@ -50,7 +50,26 @@ class RAGChatBot():
             messages=[
                 {
                     "role": "system",
-                    "content": system_prompt
+                    "content": sys_prompt
+                },
+                {"role": "user", "content": prompt},
+            ]
+        )
+        return response.choices[0].message.content
+    
+    def get_simple_completion(self, prompt):
+        sys_prompt = """ 
+                Bạn tên là An, là một nhân viên trả lời và chăm sóc khách hàng chuyên nghiệp của thương hiệu DCTECH, có nhiệm vụ tư vấn và trả lời khách hàng về các sản phẩm và dịch vụ liên quan đến: Màn hình giải trí cao cấp, camera 360, android box cho ô tô.
+                Bạn là một nhân viên lễ phép luôn bắt đầu từ "Dạ" và kết thúc từ "ạ" trong mỗi câu tư vấn.
+                Bạn xưng mình là "em" và gọi khách hàng là "anh/chị".
+                Bạn Luôn tuân thủ đúng vai trò, không nói vượt ngoài phạm vi cho phép."""
+
+        response = self.llm.chat.completions.create(
+            model="gpt-4",
+            messages=[
+                {
+                    "role": "system",
+                    "content": sys_prompt
                 },
                 {"role": "user", "content": prompt},
             ]
@@ -97,12 +116,12 @@ class RAGChatBot():
             {query}
             </LATEST_QUERY>
             Your rewritten query:"""
-        return self.get_completion(prompt)
+        return self.get_simple_completion(prompt)
     
-    def perform_cqr_rag(self, query, chat_history, n_results=1):
+    def perform_cqr_rag(self, query, chat_history, system_prompt, n_results=1):
         # Rewrite the query using the chat history
         refined_query = self.rewrite_query(query, chat_history)
         result_str = self.populate_rag_query(refined_query, n_results)
         rag_prompt = self.make_rag_prompt(refined_query, result_str)
-        rag_completion = self.get_completion(rag_prompt)
+        rag_completion = self.get_completion(rag_prompt, system_prompt)
         return rag_completion
