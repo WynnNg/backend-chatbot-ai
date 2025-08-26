@@ -9,22 +9,27 @@ from openai import OpenAI
 
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import desc
-import chromadb
 from db import db
-
 from models import User, QA, Prompt
-from embeddings import ChromaDB
+
+from vector_database import VectorDB
+
+from embeddings import Embeddings
 
 from rag.core import RAGChatBot
+from reflection import Reflection
+
+from semantic_router import SemanticRouter, Route
+from semantic_router import carScreenSamples, androidBoxSamples, camera360Samples, clarifySamples, brandInfoSamples
+
+from data_processor import DataProcessor
 
 # Load environment variables from .env file
 load_dotenv()
 
 # Access the key
-OPEN_AI_KEY = os.getenv('OPEN_AI_KEY')
-CHROMADB_API_KEY = os.getenv('CHROMADB_API_KEY')
-chromadb_db_name = os.getenv('CHROMADB_DB_NAME')
-chromadb_tenant = os.getenv('CHROMADB_TENANT')
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+
 
 app = Flask(__name__)
 CORS(app)
@@ -39,29 +44,40 @@ db.init_app(app) #database instance
 with app.app_context():
     db.create_all()  # Create database tables
     
+# Initialize embeddings
+openAIEmbedding = Embeddings(model_name="text-embedding-3-small", type="openai")
 
-client_openai = OpenAI(api_key=OPEN_AI_KEY)
+# Initialize OpenAI client
+client_openai = OpenAI(api_key=OPENAI_API_KEY)
 
-# Đường dẫn tới thư mục local chroma database
-# db_name = "chromaDatabase"
-# Kiểm tra và tạo thư mục nếu chưa tồn tại
-# if not os.path.exists(f"./{db_name}"):
-    # os.makedirs(f"./{db_name}")
-# Khởi tạo client với đường dẫn
-# client_chroma = chromadb.PersistentClient(path=f"./{db_name}")
+# Initialize vector database
+vectorDB = VectorDB(db_type="qdrant")
 
-client_chroma = chromadb.CloudClient(
-  api_key=CHROMADB_API_KEY,
-  tenant=chromadb_tenant,
-  database=chromadb_db_name
-)
+# Initialize RAGChatBot with OpenAI client
+rag_chatbot = RAGChatBot(client_openai, vectorDB)
 
-collection = client_chroma.get_or_create_collection(name=chromadb_db_name, metadata={"hnsw:space": "cosine"})
+# Initialize reflection
+reflection = Reflection()
 
-# Initialize RAGChatBot with OpenAI client and ChromaDB collection
+# Initialize DataProcessor
+data_processor = DataProcessor(embedding=openAIEmbedding)
 
-rag_chatbot = RAGChatBot(client_openai, collection)
-chromadb = ChromaDB(client_chroma, collection)
+# --- SEMANTIC ROUTER Setup --- #
+CAR_SCREEN_ROUTE_NAME = 'car_screen'
+ANDROID_BOX_ROUTE_NAME = 'android_box'
+CAMERA_360_ROUTE_NAME = 'camera_360'
+CLARIFY_QUESTION_ROUTE_NAME = 'clarify_question'
+BRAND_INFO_ROUTE_NAME = 'brand_info'
+
+carScreenRoute = Route(name=CAR_SCREEN_ROUTE_NAME, samples=carScreenSamples)
+androidBoxRoute = Route(name=ANDROID_BOX_ROUTE_NAME, samples=androidBoxSamples)
+camera360Route = Route(name=CAMERA_360_ROUTE_NAME, samples=camera360Samples)
+brandInfoRoute = Route(name=BRAND_INFO_ROUTE_NAME, samples=brandInfoSamples)
+clarifyRoute = Route(name=CLARIFY_QUESTION_ROUTE_NAME, samples=clarifySamples)
+
+semanticRouter = SemanticRouter(openAIEmbedding, routes=[carScreenRoute, androidBoxRoute, camera360Route, brandInfoRoute, clarifyRoute])
+# --- End SEMANTIC ROUTER Setup --- #
+
 
 # @login_manager.user_loader
 def load_user(id):
@@ -71,113 +87,127 @@ def load_user(id):
 # def home():
 #     return "Welcome to the Flask App!"
 
+def process_query(query):
+    return query.lower()
+
 # Route for chatbot interaction
 @app.route('/api/chat', methods=['POST'])
 def chat():
     try:
+        # Get the query and chat history from the request
         data = request.get_json()
         if not data or 'query' not in data:
             return jsonify({"error": "No query provided"}), 400
-
+        
         query = data['query']
         chat_history = data.get('chat_history', '')
+
+        query = process_query(query)
+
+        # Use the semantic router to guide the query
+        guidedRoute = semanticRouter.guide(query=query)[1]
+
+        # Perform reflection on the chat history
+        reflection_question = reflection(chat_history)
+
+        # Get the system prompt from the database
         system_prompt = Prompt.query.filter(Prompt.prompt_id == 1).first()
 
-        rag_completion = rag_chatbot.perform_cqr_rag(query, chat_history, system_prompt, n_results=2)
+        rag_completion = ""
+        collection_name = ""
+
+        # Perform RAG based on the guided route
+        if guidedRoute == CAR_SCREEN_ROUTE_NAME:
+            collection_name = "car_screen"
+        elif guidedRoute == ANDROID_BOX_ROUTE_NAME:
+            collection_name = "android_box"
+        elif guidedRoute == CAMERA_360_ROUTE_NAME:
+            collection_name = "camera_360"
+        elif guidedRoute == BRAND_INFO_ROUTE_NAME:
+            collection_name = "brand_info"
+        elif guidedRoute == CLARIFY_QUESTION_ROUTE_NAME:
+            collection_name = "clarify_question"
         
+        print(f"sematic route: {guidedRoute}")
+
+        rag_completion = rag_chatbot.perform_rag(reflection_question, collection_name, system_prompt, openAIEmbedding)
+ 
         if not rag_completion:
             return jsonify({"error": "No results found"}), 404
 
         return jsonify({"response": rag_completion}), 200
 
     except ValueError as e:
-        return jsonify({"error": f"Invalid JSON: {str(e)}"}), 400    
+        return jsonify({"error": f"Invalid JSON: {str(e)}"}), 400
 
 #Route for add documents to vector database
-@app.route('/api/product/learn', methods=['POST'])
-def add_product_to_db():
+@app.route('/api/doc/learn', methods=['POST'])
+def add_doc_to_db():
     try:
         data = request.get_json()
         if not data:
             return jsonify({"error": "No data provided"}), 400
         
-        if data["promotion"]:
-            metadata = {
-                "id": data["id"],
-                "name": data["name"] if data["name"] else "",
-                "price": data["price"] if data["price"] else "",
-                "promotion": data["promotion"] if data["promotion"] else "",
-                "topic": f"Thông tin sản phẩm {data["name"]}"
-            }
-        else:
-            metadata = {
-                "id": data["id"],
-                "name": data["name"] if data["name"] else "",
-                "price": data["price"] if data["price"] else "",
-                "topic": f"Thông tin sản phẩm {data["name"]}"
-            }
+        response = data_processor.add_data(vectorDB, data, collection_name=data["collection_name"])
+        
+        if response.get("status") == "error":
+            return jsonify(response), 500
 
-        documents = data["info"]
-
-        chromadb.add_documents(
-            documents=documents,
-            metadatas=metadata
-        )
-
-        return jsonify({"metadata": metadata, "status": "success"}), 200
+        return jsonify(response), 200
 
     except Exception as e:
         return jsonify({"error": f"Server error: {str(e)}"}), 500
 
-@app.route('/api/document/learn', methods=['POST'])
-def add_document_to_db():
+#Route for update documents to vector database
+@app.route('/api/doc/learn', methods=['PUT'])
+def update_doc_to_db():
     try:
         data = request.get_json()
         if not data:
             return jsonify({"error": "No data provided"}), 400
         
-        metadata = {
-            "id": data["id"],
-            "title": data["title"] if data["title"] else "",
-            "topic": data["topic"] if data["topic"] else "",
-            "type": data["type"] if data["type"] else "",
-        }
+        response = data_processor.update_data(vectorDB, data, collection_name=data["collection_name"])
+        
+        if response.get("status") == "error":
+            return jsonify(response), 500
 
-        documents = data["content"]
+        return jsonify(response), 200
 
-        chromadb.add_documents(
-            documents=documents,
-            metadatas=metadata
-        )
-
-        return jsonify({"metadata": metadata, "status": "success"}), 200
     except Exception as e:
         return jsonify({"error": f"Server error: {str(e)}"}), 500
 
-@app.route('/api/question/learn', methods=['POST'])
-def add_question_to_db():
+#Route for delete documents to vector database
+@app.route('/api/doc/delete', methods=['DELETE'])
+def delete_doc_to_db():
     try:
         data = request.get_json()
         if not data:
             return jsonify({"error": "No data provided"}), 400
         
-        metadata = {
-            "id": data["id"],
-            "question": data["question"],
-            "answer": data["answer"],
-            "intent": data["intent"],
-            "topic": data["topic"],
-            "type": data["type"],
-        }
+        response = vectorDB.delete_item(collection_name=data["collection_name"], item_id=data["id"])
+        
+        if response.get("status") == "error":
+            return jsonify(response), 500
 
-        documents = f"Câu hỏi: {data['question']}. Câu trả lời: {data["answer"]}. {data["topic"]}. {data["intent"]}"
+        return jsonify(response), 200
 
-        chromadb.add_documents(
-            documents=documents,
-            metadatas=metadata
-        )
+    except Exception as e:
+        return jsonify({"error": f"Server error: {str(e)}"}), 500
 
-        return jsonify({"metadata": metadata, "status": "success"}), 200
+#Route for delete collection to vector database
+@app.route('/api/collection/delete', methods=['DELETE'])
+def delete_collection_to_db():
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "No data provided"}), 400
+        
+        response = vectorDB.delete_collection(collection_name=data["collection_name"])
+        
+        if response.get("status") == "error":
+            return jsonify(response), 500
+
+        return jsonify(response), 200
 
     except Exception as e:
         return jsonify({"error": f"Server error: {str(e)}"}), 500
@@ -215,175 +245,6 @@ def add_system_prompt():
     except Exception as e:
         return jsonify({"error": f"Server error: {str(e)}"}), 500
 
-#Route for question and answer management
-@app.route('/api/qa')
-def get_all_qa():
-    try:
-        qa_list = QA.query.order_by(desc(QA.created_at)).all()
-        if not qa_list:
-            return jsonify({"data": []}), 200
-
-        result = []
-        for qa in qa_list:
-            result.append({
-                "id": qa.id,
-                "topic": qa.topic,
-                "question": qa.question,
-                "answer": qa.answer,
-                "content": qa.content,
-                "is_chunk": qa.is_chunk
-            })
-
-        return jsonify({"data": result}), 200
-
-    except SQLAlchemyError as e:
-        return jsonify({"error": f"Database error: {str(e)}"}), 500
-    except Exception as e:
-        return jsonify({"error": f"Server error: {str(e)}"}), 500
-
-@app.route('/api/qa/<int:qa_id>', methods=['GET'])
-def get_qa_by_id(qa_id):
-    try:
-        qa = QA.query.get(qa_id)
-        if not qa:
-            return jsonify({"error": "QA not found"}), 404
-
-        return jsonify({
-            "data": {
-                "id": qa.id,
-                "topic": qa.topic,
-                "question": qa.question,
-                "answer": qa.answer,
-                "content": qa.content,
-                "is_chunk": qa.is_chunk
-            }
-        }), 200
-
-    except SQLAlchemyError as e:
-        return jsonify({"error": f"Database error: {str(e)}"}), 500
-    except Exception as e:
-        return jsonify({"error": f"Server error: {str(e)}"}), 500
-
-
-@app.route('/api/add/qa', methods=['POST'])
-def add_qa():
-    try:
-        data = request.get_json()
-      
-        if not data:
-            return jsonify({"error": "No data provided"}), 400
-
-        required_fields = ['question', 'answer']
-        if not all(field in data for field in required_fields):
-            return jsonify({"error": "Missing required fields: 'question' or 'answer'"}), 400
-
-        new_qa = QA(
-            topic=data.get('topic', ''),
-            question=data['question'],
-            answer=data['answer'],
-            content= f"Chủ đề: {data.get('topic', '')}. Câu hỏi: {data['question']}. Câu Trả lời {data['answer']}", 
-        )
-
-        db.session.add(new_qa)
-        try:
-            db.session.commit()
-        except:
-            db.session.rollback()
-
-        return jsonify({"data": {
-                "id": new_qa.id,
-                "topic": new_qa.topic,
-                "question": new_qa.question,
-                "answer": new_qa.answer,
-                "content": new_qa.content,
-                "is_chunk": new_qa.is_chunk
-            }}), 201
-
-    except ValueError as e:
-        return jsonify({"error": f"Invalid JSON: {str(e)}"}), 400
-    except SQLAlchemyError as e:
-        db.session.rollback()
-        return jsonify({"error": f"Database error: {str(e)}"}), 500
-    except Exception as e:
-        return jsonify({"error": f"Server error: {str(e)}"}), 500
-
-@app.route('/api/delete/qa/<int:qa_id>', methods=['DELETE'])
-def delete_qa(qa_id):
-    try:
-        qa_to_delete = QA.query.get(qa_id)
-        if not qa_to_delete:
-            return jsonify({"error": "QA not found"}), 404
-        
-        if qa_to_delete.is_chunk:
-            metadata = {
-                    "id": qa_to_delete.id,
-                    "title": qa_to_delete.question,
-                    "question": qa_to_delete.question,
-                    "answer": qa_to_delete.answer,
-                    "topic": qa_to_delete.topic
-            }
-            chromadb.delete_document(
-                metadatas=metadata
-            )
-
-        db.session.delete(qa_to_delete)
-        db.session.commit()
-
-        return jsonify({"message": "QA deleted successfully"}), 200
-
-    except SQLAlchemyError as e:
-        db.session.rollback()
-        return jsonify({"error": f"Database error: {str(e)}"}), 500
-    except Exception as e:
-        return jsonify({"error": f"Server error: {str(e)}"}), 500
-
-@app.route('/api/update/qa/<int:qa_id>', methods=['PUT'])
-def update_qa(qa_id):
-    try:
-        data = request.get_json()
-        if not data:
-            return jsonify({"error": "No data provided"}), 400
-
-        qa_to_update = QA.query.get(qa_id)
-        if not qa_to_update:
-            return jsonify({"error": "QA not found"}), 404
-
-        if 'question' in data:
-            qa_to_update.question = data['question']
-        if 'answer' in data:
-            qa_to_update.answer = data['answer']
-        if 'topic' in data:
-            qa_to_update.topic = data['topic']
-        if 'is_chunk' in data:
-            qa_to_update.is_chunk = data['is_chunk']
-            metadata = {
-                "id": qa_to_update.id,
-                "title": qa_to_update.question,
-                "question": qa_to_update.question,
-                "answer": qa_to_update.answer,
-                "topic": qa_to_update.topic
-            }
-            chromadb.add_documents(
-                documents=qa_to_update.content,
-                metadatas=metadata
-            )
-
-        db.session.commit()
-
-        return jsonify({"data": {
-                "id": qa_to_update.id,
-                "topic": qa_to_update.topic,
-                "question": qa_to_update.question,
-                "answer": qa_to_update.answer,
-                "content": qa_to_update.content,
-                "is_chunk": qa_to_update.is_chunk
-            }}), 200
-
-    except SQLAlchemyError as e:
-        db.session.rollback()
-        return jsonify({"error": f"Database error: {str(e)}"}), 500
-    except Exception as e:
-        return jsonify({"error": f"Server error: {str(e)}"}), 500
 
 if __name__ == '__main__':
     app.run()
