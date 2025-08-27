@@ -2,7 +2,6 @@ class RAGChatBot():
     def __init__(self, llm, vectorDB):
         self.llm = llm
         self.vectorDB = vectorDB
-        self.reranker = Rerank()
 
     def get_completion(self, prompt, system_prompt):
 
