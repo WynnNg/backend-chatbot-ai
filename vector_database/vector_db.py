@@ -115,7 +115,6 @@ class VectorDB:
 
                 # Extract the results
                 results = []
-                print(f"check points: {search_result}")
                 for point in search_result:
                     results.append({
                         "id": point.id,

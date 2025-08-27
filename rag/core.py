@@ -38,26 +38,22 @@ class RAGChatBot():
         knowledges = self.vectorDB.search(query_vector, collection_name, limit)
         
         i = 0
-        docs = []
+        result_str = ""
         for result in knowledges:
             if result['payload'] is not None:
-                result_str = ""
+                i += 1
+                result_str += f"\n {i}"
                 if result['payload'].get('name'):
-                    result_str += f"\n - Tên: {result['payload'].get('name')}"
+                    result_str += f" Tên: {result['payload'].get('name')}, "
                 if result['payload'].get('price'):
-                    result_str += f", giá: {result['payload'].get('price')}"
+                    result_str += f"giá: {result['payload'].get('price')}, "
                 if result['payload'].get('promotion'):
-                    result_str += f", khuyến mãi: {result['payload'].get('promotion')}"
+                    result_str += f"khuyến mãi: {result['payload'].get('promotion')}, "
                 if result['payload'].get('product_info'):
-                    result_str += f", Thông tin sản phẩm: {result['payload'].get('product_info')}"
+                    result_str += f"Thông tin sản phẩm: {result['payload'].get('product_info')}, "
                 if result['payload'].get('content'):
-                    result_str += f", Thông tin: {result['payload'].get('content')}"
-                docs.append(result_str)
-
-        reranked_docs = self.reranker.rerank_docs(query, docs)
-        reranked_str = "\n".join(reranked_docs)
-
-        return reranked_str if reranked_str else "Không có thông tin liên quan"
+                    result_str += f"Thông tin: {result['payload'].get('content')}."
+        return result_str if result_str else "Không có thông tin liên quan"
 
     def make_rag_prompt(self, query, results):
         return f"""<INSTRUCTIONS>
