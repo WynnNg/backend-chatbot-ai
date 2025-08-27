@@ -90,17 +90,23 @@ camera360Samples = [
 ]
 
 brandInfoSamples = [
-    "DCTECH là gì vậy em?",
-    "DCTECH có những dòng sản phẩm nào?",
-    "DCTECH có cửa hàng ở đâu vậy em?",
-    "DCTECH có hỗ trợ lắp đặt không?",
-    "DCTECH có bảo hành không?",
-    "DCTECH có hỗ trợ trả góp không?",
-    "DCTECH có hỗ trợ lắp đặt tận nơi không?",
-    "DCTECH có hỗ trợ lắp đặt ở tỉnh không?",
-    "Chinh sách bảo hành của DCTECH như thế nào?",
-    "DCTECH có những ưu đãi gì không?",
-    "DCTECH có hỗ trợ kỹ thuật sau khi lắp đặt không?",   
+    "dctech là gì vậy em?",
+    "dctech có những dòng sản phẩm nào?",
+    "dctech có cửa hàng ở đâu vậy em?",
+    "dctech có hỗ trợ lắp đặt không?",
+    "dctech có bảo hành không?",
+    "dctech có hỗ trợ trả góp không?",
+    "dctech có hỗ trợ lắp đặt tận nơi không?",
+    "dctech có hỗ trợ lắp đặt ở tỉnh không?",
+    "chính sách bảo hành của dctech như thế nào?",
+    "dctech có những ưu đãi gì không?",
+    "dctech có hỗ trợ kỹ thuật sau khi lắp đặt không?",
+    "chính sách bảo hành",
+    "hệ sinh thái của dctech",
+    "giới thiệu về dctech",
+    "dctech là gì",
+    "dctech là thương hiệu nào?",
+    "dctech làm gì"  
 ]   
 
 
@@ -126,4 +132,6 @@ clarifySamples = [
     "Cho mình xin giá tham khảo",
     "xin chào",
     "xin chào shop",
+    "hi",
+    "hello"
 ]

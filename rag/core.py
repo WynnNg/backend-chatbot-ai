@@ -1,5 +1,3 @@
-from rerank import Rerank
-
 class RAGChatBot():
     def __init__(self, llm, vectorDB):
         self.llm = llm
