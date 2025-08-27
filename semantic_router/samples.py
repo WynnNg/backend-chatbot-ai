@@ -36,6 +36,16 @@ carScreenSamples = [
     "dctech có những dòng màn hình nào?",
     "có những dòng màn hình nào",
     "có màn hình gì",
+    "Nếu giá màn hình tính thêm công lắp đặt thì bao nhiêu?",
+    "Thông tin màn hình DC H500 Luxury",
+    "Phân tích dòng sản phẩm DCTECH H300 Series?",
+    "Phân tích dòng sản phẩm DCTECH H500 Series?",
+    "Sao thấy nhiều loại màn hình quá...?",
+    "Màn hình này có khác gì các loại khác trên thị trường không em?",
+    "Màn hình DCTECH là gì vậy em?",
+    "Giao diện màn hình DCTECH có gì nổi bật?",
+    "DCTECH H500 có tích hợp được camera 360 không?",
+    "Màn hình DCTECH có gì khác biệt so với màn hình Android thông thường?",
 ]
 
 androidBoxSamples = [
@@ -62,6 +72,14 @@ androidBoxSamples = [
     "Lắp Box có ảnh hưởng bảo hành xe không?",
     "Android Box có sử dụng được CarPlay không?",
     "Android Box DC B300 có mạnh không? Chạy có mượt không?",
+    "Android Box DC B300 có mạnh không? Chạy có mượt không?",
+    "Android Box có sử dụng được CarPlay không?",
+    "Lắp Box có ảnh hưởng bảo hành xe không?",
+    "Box có điều khiển giọng nói được không?",
+    "Xe nào dùng được Android Box DCTECH vậy?",
+    "Box DCTECH có cần tháo màn hình không?",
+    "Android Box DCTECH là gì? Dùng để làm gì?",
+    "DCTECH đang có mẫu Android Box nào?"
 ]
 
 camera360Samples = [
@@ -87,6 +105,12 @@ camera360Samples = [
     "camera 360 cho xe có dùng được cho màn hình zin cx5 2025 k",
     "camera 360 dc b300 có dùng đc cho vf9 không shop",
     "mercedes c200 2015 có dùng được camera 360 ko?",
+    "Camera 360 lắp lên có ảnh hưởng điện xe không?",
+    "Camera DCTECH dùng được với màn hình nào?",
+    "Camera 360 có quay được ban đêm không?",
+    "Lái xe số sàn có cần camera 360 không em?",
+    "Thời gian lắp đặt camera 360 mất bao lâu?",
+    "Góc quay camera có rộng không?"
 ]
 
 brandInfoSamples = [
