@@ -64,6 +64,8 @@ carScreenSamples = [
 ]
 
 androidBoxSamples = [
+    "giá của android box cho ô tô",
+    "giá android box cho ô tô",
     "android box giá sau bạn",
     "cho mình hỏi giá android box",
     "xin giá android box",
