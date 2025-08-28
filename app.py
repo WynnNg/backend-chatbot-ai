@@ -129,6 +129,7 @@ def chat():
             collection_name = "clarify_question"
         
         print(f"sematic route: {guidedRoute}")
+        print(f"reflection_question: {reflection_question}")
 
         rag_completion = rag_chatbot.perform_rag(reflection_question, collection_name, system_prompt, openAIEmbedding)
  
