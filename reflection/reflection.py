@@ -20,10 +20,11 @@ class Reflection():
             role = item.get("role")
             content = item.get("content")
             if role and content:
-                concatenatedTexts.append(f"{role}: {content} \n")
+                if(role == "user"):
+                    concatenatedTexts.append(f"{role}: {content} \n")
         return "".join(concatenatedTexts)
     
-    def __call__(self, chatHistory, lastItemsConsidered=100):
+    def __call__(self, chatHistory, lastItemsConsidered=50):
         if len(chatHistory) >= lastItemsConsidered:
             chatHistory = chatHistory[len(chatHistory)-lastItemsConsidered:]
         
