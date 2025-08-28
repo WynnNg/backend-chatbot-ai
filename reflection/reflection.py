@@ -20,8 +20,7 @@ class Reflection():
             role = item.get("role")
             content = item.get("content")
             if role and content:
-                if(role == "user"):
-                    concatenatedTexts.append(f"{role}: {content} \n")
+                concatenatedTexts.append(f"{role}: {content} \n")
         return "".join(concatenatedTexts)
     
     def __call__(self, chatHistory, lastItemsConsidered=50):
