@@ -7,8 +7,23 @@ carScreenSamples = [
     "màn hình giá sao",
     "xin giá màn liền cam 360",
     "xin giá màn hình",
+    "xin giá màn hình h500 premium",
+    "xin giá màn hình h500 luxury",
+    "xin giá màn hình h300 base",
+    "xin giá màn hình h300 ultra",
+    "màn hình h500 premium",
+    "màn hình h500 luxury",
+    "màn hình h300 base",
+    "màn hình h300 ultra",
+    "màn hình h500",
+    "màn hình h300",
+    "h500",
+    "h500 premium",
+    "h500 luxury",
+    "h300",
+    "h300 base",
+    "h300 ultra",
     "giá màn hình shop",
-    "gia man hinh shop",
     "giá màn bn ạ",
     "dc h500 bn",
     "tư vấn màn hình 360",
@@ -46,12 +61,18 @@ carScreenSamples = [
     "Giao diện màn hình DCTECH có gì nổi bật?",
     "DCTECH H500 có tích hợp được camera 360 không?",
     "Màn hình DCTECH có gì khác biệt so với màn hình Android thông thường?",
+    "Màn hình ô tô"
 ]
 
 androidBoxSamples = [
     "android box giá sau bạn",
     "cho mình hỏi giá android box",
     "xin giá android box",
+    "android box",
+    "xin giá dc b300",
+    "xin giá b300",
+    "b300",
+    "dc b300",
     "android box giá bnh shop",
     "xin giá android box",
     "giá android box shop",
@@ -110,7 +131,21 @@ camera360Samples = [
     "Camera 360 có quay được ban đêm không?",
     "Lái xe số sàn có cần camera 360 không em?",
     "Thời gian lắp đặt camera 360 mất bao lâu?",
-    "Góc quay camera có rộng không?"
+    "Góc quay camera có rộng không?",
+    "Cho anh xin giá protech 5",
+    "Cho anh xin giá protech 6",
+    "Cho anh xin giá protech 7",
+    "Cho anh xin giá protech 10",
+    "protech 5",
+    "protech 6",
+    "protech 7",
+    "protech 10",
+    "camera 360 protech 5",
+    "camera 360 protech 6",
+    "camera 360 protech 7",
+    "camera 360 protech 10",
+    "camera 360",
+
 ]
 
 brandInfoSamples = [
@@ -130,7 +165,10 @@ brandInfoSamples = [
     "giới thiệu về dctech",
     "dctech là gì",
     "dctech là thương hiệu nào?",
-    "dctech làm gì"  
+    "dctech làm gì",
+    "shop có những sản phẩm nào",
+    "bên em có những sản phẩm nào",
+    "có những sản phẩm nào",
 ]   
 
 
@@ -157,5 +195,6 @@ clarifySamples = [
     "xin chào",
     "xin chào shop",
     "hi",
-    "hello"
+    "hello",
+    "tư vấn",
 ]
