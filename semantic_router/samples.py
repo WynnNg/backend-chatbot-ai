@@ -1,4 +1,7 @@
 carScreenSamples = [
+    "giá màn hình",
+    "màn hình bn",
+    "màn hình bao nhiêu",
     "màn hình"
     "màn hình h500 premium",
     "màn hình h500 luxury",
@@ -51,6 +54,9 @@ carScreenSamples = [
 ]
 
 androidBoxSamples = [
+    "giá android box",
+    "box bn",
+    "box bao nhiêu",
     "android"
     "box"
     "android box",
@@ -84,6 +90,9 @@ androidBoxSamples = [
 ]
 
 camera360Samples = [
+    "giá protech",
+    "protech bn",
+    "protech bao nhiêu",
     "protech",
     "protech 5",
     "protech 6",
@@ -119,6 +128,7 @@ camera360Samples = [
 ]
 
 brandInfoSamples = [
+    "bên em còn sản phẩm nào khác không",
     "dctech là gì vậy em?",
     "dctech có những dòng sản phẩm nào?",
     "dctech có cửa hàng ở đâu vậy em?",
@@ -143,29 +153,15 @@ brandInfoSamples = [
 
 
 clarifySamples = [
-    "Xin giá",
-    "Xin gia",
-    "Xin giá shop",
-    "Giá",
-    "Giá chính sác bao nhiêu",
-    "Báo giá",
-    "Báo giá sản phẩm",
+    "giá",
     "bn",
-    "giá bn",
-    "giá bn v ạ",
-    "gia nhiu vay",
-    "giá sản phẩm",
-    "cho xinh giá",
-    "cho xin giá",
-    "Xin giá sp",
-    "giá thế nào shop",
-    "giá sao a",
-    "Cho mình xin giá tham khảo",
+    "bao nhiêu",
     "xin chào",
     "xin chào shop",
     "hi",
     "hello",
     "tư vấn",
+    "mua hàng sao",
 ]
 
 

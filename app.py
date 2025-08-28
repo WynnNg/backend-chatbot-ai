@@ -102,13 +102,14 @@ def chat():
         query = data['query']
         chat_history = data.get('chat_history', '')
 
-        query = process_query(query)
-
-        # Use the semantic router to guide the query
-        guidedRoute = semanticRouter.guide(query=query)[1]
-
+        
         # Perform reflection on the chat history
         reflection_question = reflection(chat_history)
+
+        reflection_query = process_query(reflection_question)
+
+        # Use the semantic router to guide the query
+        guidedRoute = semanticRouter.guide(query=reflection_query)[1]
 
         # Get the system prompt from the database
         system_prompt = Prompt.query.filter(Prompt.prompt_id == 1).first()
