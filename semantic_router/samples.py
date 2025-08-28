@@ -1,11 +1,4 @@
 carScreenSamples = [
-    "cho mình hỏi giá màn hình cam 360",
-    "màn hình 360 giá sau bạn",
-    "màn hình giá bnh shop",
-    "màn hình bao nhiêu tiền vậy shop",
-    "màn liền camera 360 giá bn ạ",
-    "màn hình giá sao",
-    "xin giá màn liền cam 360",
     "xin giá màn hình",
     "xin giá màn hình h500 premium",
     "xin giá màn hình h500 luxury",
@@ -26,6 +19,12 @@ carScreenSamples = [
     "giá màn hình shop",
     "giá màn bn ạ",
     "dc h500 bn",
+    "cho mình hỏi giá màn hình tích hợp cam 360",
+    "màn hình giá bnh shop",
+    "màn hình bao nhiêu tiền vậy shop",
+    "màn liền camera 360 giá bn ạ",
+    "màn hình giá sao",
+    "xin giá màn liền cam 360",
     "tư vấn màn hình 360",
     "cho mình thông tin màn hình cam 360",
     "tư vấn màn liền cam 360",
@@ -104,6 +103,23 @@ androidBoxSamples = [
 ]
 
 camera360Samples = [
+    "giá protech 5",
+    "giá protech 6",
+    "giá protech 7",
+    "giá protech 10",
+    "protech 5",
+    "protech 6",
+    "protech 7",
+    "protech 10",
+    "Cho anh xin giá protech 5",
+    "Cho anh xin giá protech 6",
+    "Cho anh xin giá protech 7",
+    "Cho anh xin giá protech 10",
+    "camera 360 protech 5",
+    "camera 360 protech 6",
+    "camera 360 protech 7",
+    "camera 360 protech 10",
+    "camera 360",
     "camera 360 giá sau bạn",
     "cho mình hỏi giá camera 360",
     "xin giá camera 360",
@@ -132,24 +148,6 @@ camera360Samples = [
     "Lái xe số sàn có cần camera 360 không em?",
     "Thời gian lắp đặt camera 360 mất bao lâu?",
     "Góc quay camera có rộng không?",
-    "Cho anh xin giá protech 5",
-    "Cho anh xin giá protech 6",
-    "Cho anh xin giá protech 7",
-    "Cho anh xin giá protech 10",
-    "giá protech 5",
-    "giá protech 6",
-    "giá protech 7",
-    "giá protech 10",
-    "protech 5",
-    "protech 6",
-    "protech 7",
-    "protech 10",
-    "camera 360 protech 5",
-    "camera 360 protech 6",
-    "camera 360 protech 7",
-    "camera 360 protech 10",
-    "camera 360",
-
 ]
 
 brandInfoSamples = [
@@ -174,7 +172,6 @@ brandInfoSamples = [
     "bên em có những sản phẩm nào",
     "có những sản phẩm nào",
 ]   
-
 
 
 clarifySamples = [
