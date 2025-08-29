@@ -2,7 +2,11 @@ carScreenSamples = [
     "giá màn hình",
     "màn hình bn",
     "màn hình bao nhiêu",
-    "màn hình"
+    "màn hình android dc h300 base",
+    "màn hình android DC H300 ultra",
+    "màn hình android DC h500 premium",
+    "màn hình android DC h500 luxury",
+    "màn hình",
     "màn hình h500 premium",
     "màn hình h500 luxury",
     "màn hình h300 base",
