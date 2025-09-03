@@ -23,6 +23,8 @@ class DataProcessor():
             doc_texts += f"Thông tin sản phẩm: {data['product_info']}. "
         if 'content' in data:
             doc_texts += f"Nội dung: {data['content']}. "
+        if 'origin_question' in data:
+            doc_texts += f"{data['origin_question']}. "
                   
         doc_vector = self.embedding.encode([doc_texts])
 
@@ -53,6 +55,8 @@ class DataProcessor():
             doc_texts += f"Thông tin sản phẩm: {data['product_info']}. "
         if 'content' in data:
             doc_texts += f"Nội dung: {data['content']}. "
+        if 'origin_question' in data:
+            doc_texts += f"{data['origin_question']}. "
 
         doc_vector = self.embedding.encode([doc_texts])
 

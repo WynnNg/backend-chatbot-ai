@@ -7,8 +7,10 @@ from openai import OpenAI
 load_dotenv()
 
 class Reflection():
-    def __init__(self, model_name="gpt-4o", type="openai"):
+    def __init__(self, vectorDB, embeddings, model_name="gpt-4o", type="openai"):
         self.model_name = model_name
+        self.vectorDB = vectorDB
+        self.embeddings = embeddings
         self.type = type
 
         if self.type == "openai":
@@ -23,17 +25,37 @@ class Reflection():
                 concatenatedTexts.append(f"{role}: {content} \n")
         return "".join(concatenatedTexts)
     
-    def __call__(self, chatHistory, lastItemsConsidered=50):
+    def __call__(self, chatHistory, originQuery ,lastItemsConsidered=50):
         if len(chatHistory) >= lastItemsConsidered:
             chatHistory = chatHistory[len(chatHistory)-lastItemsConsidered:]
         
         historyString = self._concat_and_format_texts(chatHistory)
 
         higherLevelSummariesPrompt = f"""
-        Given a chat history and the latest user question which might reference context in the chat history, 
-        formulate a standalone question in Vietnamese which can be understood without the chat history. 
-        Do NOT answer the question, just reformulate it if needed and otherwise return it as is. {historyString}
+        Đây là lịch sử của cuộc trò chuyện: {historyString}.
         """
+
+        originQueryVector = self.embeddings.encode([originQuery])
+        synonymsQuestion = self.vectorDB.search(originQueryVector, "synonyms", 1)[0]
+         
+        questionStr = ''
+        system_prompt = ''
+
+        if synonymsQuestion['score'] >= 0.7 and 'synonyms_question' in synonymsQuestion['payload']:
+            questionStr = synonymsQuestion['payload'].get('synonyms_question')
+            
+            print(f"check originQuery: {originQuery}")
+            print(f"check synonymsQuestion: {questionStr}")
+
+            system_prompt = f"""
+            Bạn đóng vai khách hàng hãy tóm tắt đoạn lịch sử chat được cho bằng một câu hỏi đúng với ngữ cảnh mới nhất.
+            - Nếu khách hỏi "{originQuery}" có nghĩa là "{questionStr}"
+            """
+
+        else:
+            system_prompt = f"""
+            Bạn đóng vai khách hàng hãy tóm tắt đoạn lịch sử chat được cho bằng một câu hỏi đúng với ngữ cảnh mới nhất.
+            """
 
         if self.type == "openai":
             completion = self.client.chat.completions.create(
@@ -42,10 +64,13 @@ class Reflection():
                     {
                         "role": "user", 
                         "content": higherLevelSummariesPrompt
-                    }
+                    },  {
+                    "role": "system",
+                    "content": system_prompt
+                },
                 ]
             )
-            return completion.choices[0].message.content
+            return completion.choices[0].message.content + questionStr
             
         else:
             raise NotImplementedError("Reflection for this type is not implemented.")

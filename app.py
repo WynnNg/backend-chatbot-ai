@@ -57,7 +57,7 @@ vectorDB = VectorDB(db_type="qdrant")
 rag_chatbot = RAGChatBot(client_openai, vectorDB)
 
 # Initialize reflection
-reflection = Reflection()
+reflection = Reflection(vectorDB, openAIEmbedding)
 
 # Initialize DataProcessor
 data_processor = DataProcessor(embedding=openAIEmbedding)
@@ -104,7 +104,7 @@ def chat():
 
         
         # Perform reflection on the chat history
-        reflection_question = reflection(chat_history)
+        reflection_question = reflection(chat_history, query)
 
         reflection_query = process_query(reflection_question)
 
@@ -129,8 +129,8 @@ def chat():
         elif guidedRoute == CLARIFY_QUESTION_ROUTE_NAME:
             collection_name = "clarify_question"
         
-        print(f"sematic route: {guidedRoute}")
         print(f"reflection_question: {reflection_question}")
+        print(f"sematic route: {guidedRoute}")
 
         rag_completion = rag_chatbot.perform_rag(reflection_question, collection_name, system_prompt, openAIEmbedding)
  
