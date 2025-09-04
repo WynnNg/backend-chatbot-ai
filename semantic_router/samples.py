@@ -10,6 +10,7 @@ carScreenSamples = [
     "giá màn hình",
     "thông tin màn hình",
     "tính năng màn hình",
+    "cấu hình màn hình",
     "Màn hình ô tô",
     "màn hình 360",
     "màn liền cam 360",
@@ -32,7 +33,11 @@ androidBoxSamples = [
     "b300",
     "b300",
     "box",
+    "thông tin android box",
+    "tính năng android box",
+    "cấu hình android box",
     "android box",
+    "xe nào lắp được android box"
 ]
 
 camera360Samples = [
@@ -61,6 +66,7 @@ camera360Samples = [
 ]
 
 brandInfoSamples = [
+    "Thông tin danh sách sản phẩm của DCTECH",
     "bên em còn sản phẩm nào khác không",
     "dctech là gì vậy em?",
     "dctech có những dòng sản phẩm nào?",

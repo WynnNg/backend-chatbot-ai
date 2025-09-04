@@ -25,21 +25,35 @@ class Reflection():
                 concatenatedTexts.append(f"{role}: {content} \n")
         return "".join(concatenatedTexts)
     
+    def get_synonyms_str(self, originQuery):
+        originQueryVector = self.embeddings.encode([originQuery])
+        synonymsQuestion = self.vectorDB.search(originQueryVector, "synonyms", 1)[0]
+        return synonymsQuestion
+    
     def __call__(self, chatHistory, originQuery ,lastItemsConsidered=50):
         if len(chatHistory) >= lastItemsConsidered:
             chatHistory = chatHistory[len(chatHistory)-lastItemsConsidered:]
         
         historyString = self._concat_and_format_texts(chatHistory)
 
+        synonymsQuestion = self.get_synonyms_str(originQuery)
+
+        questionStr = ''
+        system_prompt = ''
+
+        print("check synonymsQuestion", synonymsQuestion)
+
+        if len(chatHistory) == 1:
+            if synonymsQuestion['score'] >= 0.7 and 'synonyms_question' in synonymsQuestion['payload']:
+                questionStr = synonymsQuestion['payload'].get('synonyms_question')
+
+                return originQuery + " " + questionStr
+
+            return originQuery
+
         higherLevelSummariesPrompt = f"""
         Đây là lịch sử của cuộc trò chuyện: {historyString}.
         """
-
-        originQueryVector = self.embeddings.encode([originQuery])
-        synonymsQuestion = self.vectorDB.search(originQueryVector, "synonyms", 1)[0]
-         
-        questionStr = ''
-        system_prompt = ''
 
         if synonymsQuestion['score'] >= 0.7 and 'synonyms_question' in synonymsQuestion['payload']:
             questionStr = synonymsQuestion['payload'].get('synonyms_question')
